@@ -1,7 +1,13 @@
+// Librería para los Strings
 use std::str::FromStr;
 
+// Librería para manejar las variables de entorno
 use dotenv::dotenv;
+
+// Librería para manejar las el tiempo
 use chrono::Duration;
+
+// Librería para manejar el Bot
 use teloxide::{prelude::*, types::ChatPermissions, utils::command::BotCommands};
 
 // Derive BotCommands para analizar texto con un comando en esta enumeración.
@@ -19,12 +25,13 @@ rename_rule = "lowercase",
 description = "Estos son los comandos disponibles:",
 parse_with = "split"
 )]
+// Los comandos disponibles.
 enum Command {
     #[command(description = "Expulsa a un usuario del chat (puede volver a unirse con un enlace de invitación).\n\nUso: /kick respondiendo un mensaje de un usuario. \n\n")]
     Kick,
     #[command(description = "Banea a un usuario del chat. \n\nUso: /ban respondiendo un mensaje de un usuario. \n\n")]
     Ban,
-    #[command(description = "Silencia a un usuario del chat. \n")]
+    #[command(description = "Silencia a un usuario del chat. \n\nUso: /mute respondiendo un mensaje de un usuario. \n\n")]
     Mute {
         time: u64,
         unit: UnitOfTime,
@@ -56,14 +63,14 @@ enum Command {
     #[command(description = "Envía este mensaje \n")]
     Help,
 }
-
+// Unidad de tiempo para el comando mute.
 #[derive(Clone)]
 enum UnitOfTime {
     Seconds,
     Minutes,
     Hours,
 }
-
+// Implementación de FromStr para UnitOfTime
 impl FromStr for UnitOfTime {
     type Err = &'static str;
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
@@ -75,11 +82,12 @@ impl FromStr for UnitOfTime {
         }
     }
 }
-
+// Función principal para el inicio del Bot mediante una Variable de Entorno.
 async fn run() {
     dotenv().ok();
 }
 
+// Función principal que inicia el Bot
 #[tokio::main]
 async fn main() {
     pretty_env_logger::init();
@@ -91,6 +99,7 @@ async fn main() {
     Command::repl(bot, action).await;
 }
 
+// Función de acción para cada comando.
 async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
     match cmd {
         Command::Help => {
@@ -101,7 +110,7 @@ async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.send_message(msg.chat.id, "Hola, soy un Bot de Administración.").await?;
         }
         Command::Variables => {
-            bot.send_message(msg.chat.id, "Variables: Son un espacio en memoria cuyo valor puede asignarse y cambiar. \n\nEjemplo en Rust: \nlet mi_variable = valor").await?;
+            bot.send_message(msg.chat.id, "*Variables*: Son un espacio en memoria cuyo valor puede asignarse y cambiar. \n\nEjemplo en Rust: \nlet mi_variable = valor").await?;
         }
         Command::Constantes => {
             bot.send_message(msg.chat.id, "Constantes: Son una variable de solo lectura, su valor no puede cambiarse durante la ejecución del programa").await?;
