@@ -22,7 +22,7 @@ use teloxide::{prelude::*, types::ChatPermissions, utils::command::BotCommands};
 #[derive(BotCommands, Clone)]
 #[command(
 rename_rule = "lowercase",
-description = "Estos son los comandos disponibles:",
+description = "Hola, soy un Bot que administra grupos de Telegram y seré tu asistente personal en tu aprendizaje de Rust, El Lenguaje de Programación. \n\nEstos son los comandos disponibles:",
 parse_with = "split"
 )]
 // Los comandos disponibles.
@@ -103,14 +103,13 @@ async fn main() {
 async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
     match cmd {
         Command::Help => {
-            bot.send_message(msg.chat.id, "Hola, soy un Bot que administra grupos de Telegram y seré tu asistente personal en tu aprendizaje de Rust, El Lenguaje de Programación").await?;
             bot.send_message(msg.chat.id, Command::descriptions().to_string()).await?;
         }
         Command::Start => {
             bot.send_message(msg.chat.id, "Hola, soy un Bot de Administración.").await?;
         }
         Command::Variables => {
-            bot.send_message(msg.chat.id, "*Variables*: Son un espacio en memoria cuyo valor puede asignarse y cambiar. \n\nEjemplo en Rust: \nlet mi_variable = valor").await?;
+            bot.send_message(msg.chat.id, "Variables: Son un espacio en memoria cuyo valor puede asignarse y cambiar. \n\nEjemplo en Rust: \nlet mi_variable = valor:").await?;
         }
         Command::Constantes => {
             bot.send_message(msg.chat.id, "Constantes: Son una variable de solo lectura, su valor no puede cambiarse durante la ejecución del programa").await?;
@@ -122,16 +121,16 @@ async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.send_message(msg.chat.id, "Operadores: En programación, tenemos distintos tipos de operadores para manejar datos en nuestras variables. Entre estos están: \n\n//Los Operadores Básicos: \n\n+ Suma \n\n- Resta \n\n* Multiplicación \n\n/ Division \n\n% División (Con resto/residuo) \n\n//Los Operadores Relacionales: \n\n> Mayor que \n\n< Menor que \n\n>= Mayor o igual que \n\n<= Menor o igual que \n\n== Igual \n\n!= Diferente de \n\n//Los Operadores Lógicos \n\n|| Or (o) \n\n&& And (y)").await?;
         }
         Command::Arrays => {
-            bot.send_message(msg.chat.id, "Son un conjunto de variables").await?;
+            bot.send_message(msg.chat.id, "un Arreglo/Array nos permite almacenar múltiples valores dentro de una colección. En Rust, un Arreglo/Array debe almacenar el mismo tipo de dato (Solo enteros, solo Strings, solo Booleanos, etc) \n\nEjemplo en Rust: \nlet array = [1, 2, 3, 4, 5]; \n\nConsejo: En Rust, los Arreglos/Arrays se rigen por la regla de los indices. A cada elemento le corresponde un indice y los indices comienzan en cero. Si tomamos nuestro ejemplo el índice en dicho ejemplo es: \n\n0 -> 1 \n1 -> 2 \n2 -> 3 \n3 -> 4 \n4 -> 5").await?;
         }
         Command::Tuplas => {
-            bot.send_message(msg.chat.id, "Son un conjunto de variables similar a un Arreglo/Array").await?;
+            bot.send_message(msg.chat.id, "Al igual que con los Arreglos/Arrays las tuplas nos permiten almacenar diferentes elementos dentro de una colección \n\nEjemplo en Rust: \nlet tupla = (10, false, 5.5); \n\nConsejo: A diferencia entre una tupla y un Arreglo/Array consiste en que las tuplas pueden almacenar diferentes tipos de datos, cosa que con los Arreglos/Arrays no es posible.").await?;
         }
         Command::Vectores => {
-            bot.send_message(msg.chat.id, "Son un conjunto de variables").await?;
+            bot.send_message(msg.chat.id, "Al igual que un Arreglo/Array los Vectores nos permiten almacenar diferentes valores dentro de una colección. \n\nEjemplo en Rust: \nlet mut vector = vec![1, 2, 3];").await?;
         }
         Command::Condicionales => {
-            bot.send_message(msg.chat.id, "Son un conjunto de variables").await?;
+            bot.send_message(msg.chat.id, "Son grupos de sentencias o sentencias individuales que te permiten condicionar la decisión entre la elección de una opción y otra. \n\nEjemplo en Rust: \nlet color = 'verde'; \n\nif color == 'Verde' {\n    println!('Puede continuar.'); \n} else { \n    println!('El color no es verde'); \n}").await?;
         }
         Command::Loop => {
             bot.send_message(msg.chat.id, "Es un Bucle infinito").await?;
