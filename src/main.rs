@@ -60,6 +60,10 @@ enum Command {
     For,
     #[command(description = "Explica el uso del ciclo While en Rust. \n")]
     While,
+    #[command(description = "Explica el uso de funciones en Rust. \n")]
+    Match,
+    #[command(description = "Explica el uso de funciones en Rust. \n")]
+    Enums,
     #[command(description = "Envía este mensaje \n")]
     Help,
 }
@@ -99,6 +103,8 @@ async fn main() {
     Command::repl(bot, action).await;
 }
 
+
+
 // Función de acción para cada comando.
 async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
     match cmd {
@@ -136,10 +142,16 @@ async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.send_message(msg.chat.id, "Es un Bucle infinito").await?;
         }
         Command::For => {
-            bot.send_message(msg.chat.id, "Son un conjunto de variables").await?;
+            bot.send_message(msg.chat.id, "En Rust, el ciclo for nos permitirá iterar sobre una colección de datos. Ya sea un vector, un Arreglo/Array, una tupla, etc. El ciclo for funcionara como un for each \n\nEjemplo en Rust: \nlet numeros : [i32; 5] = [1, 2, 3, 4, 5]; \n\nfor numero in numeros.iter( ) {\n      println!('El valor de número: {:?}', numero); \n} \n\nEjemplo de algoritmo Fizz Buzz utilizando el ciclo for en Rust: \n\nfor numero in 1..101 {\n\n    if numero % 3 == 0 && numero % 5 == 0 {\n      println!('Fizz Buzz'); \n\n} else if numero % 3 == 0 { \n      println!('Fizz'); \n\n} else if numero % 5 == 0 {\n      println!('Buzz'); \n\n} else {\n      println!('{ }', numero); \n    }\n} \n\nNota: Debido a las limitaciones de la API de Telegram, no es posible utilizar comillas dobles más de una vez al enviar un mensaje a través del Bot, se sugiere reemplazar las comillas simples del ejemplo por comillas dobles al practicar").await?;
         }
         Command::While => {
-            bot.send_message(msg.chat.id, "Son un conjunto de variables").await?;
+            bot.send_message(msg.chat.id, "Próximamente").await?;
+        }
+        Command::Match => {
+            bot.send_message(msg.chat.id, "En Rust, Match es el equivalente a Switch en otros lenguajes. Con Match podemos evaluar un valor en diferentes casos. \n\nEjemplo en Rust: \nlet numero : i32 = 55; \n\nMatch numero {\n         1 => println!('El número es uno.'), \n\n         2 => println!('El número es dos.'), \n\n         3 => println!('El número es tres.'), \n\n         4 | 5 | 6 => println!('El numero está entre cuatro y seis.'), \n\n         7..=100 => {\n                println!('El número es mayor o igual a 7'); \n                println!('El número se evalúa mediante un rango.'); \n         }, \n\n         _ => println!('{}', numero) \n}").await?;
+        }
+        Command::Enums => {
+            bot.send_message(msg.chat.id, "Un Enum es un tipo que almacena diferentes variantes, almacena diferentes opciones. \n\nEjemplo en Rust: \n").await?;
         }
         Command::Kick => kick_user(bot, msg).await?,
         Command::Ban => ban_user(bot, msg).await?,
