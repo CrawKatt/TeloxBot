@@ -112,6 +112,9 @@ async fn main() {
     Command::repl(bot, action).await;
 }
 
+// Función para enviar imágenes
+
+
 // Función de acción para cada comando.
 async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
     match cmd {
@@ -166,8 +169,11 @@ async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
         Command::Metodos => {
             bot.send_message(msg.chat.id, "Los métodos son similares a las funciones, pero se diferencian en que los métodos se definen dentro de un contexto, como una estructura o un Enum. \n\nEjemplo en Rust: \nstruct Rectangulo { \n      ancho: u32, \n      alto: u32, \n} \n\nimpl Rectangulo { \n      fn area(&self) -> u32 { \n            self.ancho * self.alto \n      } \n} \n\nfn main() { \n      let rectangulo = Rectangulo { \n            ancho: 30, \n            alto: 50, \n      }; \n\n      println!('El área del rectángulo es: {}', rectangulo.area()); \n}").await?;
         }
-        Command::Imagenes => {
-            bot.send_photo(chat_id, InputFile::file("./assets/img/comprobar.png")).await?;
+        Command::Return => {
+            bot.send_message(msg.chat.id, "Próximamente").await?;
+        }
+        Command::Image => {
+            bot.send_photo(msg.chat.id, InputFile::file("./assets/img/comprobar.png")).await?;
         }
         Command::Kick => kick_user(bot, msg).await?,
         Command::Ban => ban_user(bot, msg).await?,
@@ -177,7 +183,6 @@ async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
     Ok(())
 }
 
-// Función para enviar imágenes
 
 
 // Expulsar a un usuario con un mensaje respondido.
