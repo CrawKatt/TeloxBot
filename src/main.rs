@@ -9,6 +9,7 @@ use chrono::Duration;
 
 // Librería para manejar el Bot
 use teloxide::{prelude::*, types::ChatPermissions, utils::command::BotCommands};
+use teloxide::types::InputFile;
 
 // Derive BotCommands para analizar texto con un comando en esta enumeración.
 //
@@ -60,10 +61,18 @@ enum Command {
     For,
     #[command(description = "Explica el uso del ciclo While en Rust. \n")]
     While,
-    #[command(description = "Explica el uso de funciones en Rust. \n")]
+    #[command(description = "Explica el uso de Match en Rust. \n")]
     Match,
-    #[command(description = "Explica el uso de funciones en Rust. \n")]
+    #[command(description = "Explica el uso de los Enums en Rust. \n")]
     Enums,
+    #[command(description = "Explica el uso de Funciones en Rust. \n")]
+    Funciones,
+    #[command(description = "Explica el uso de Return en Rust. \n")]
+    Return,
+    #[command(description = "Explica el uso de Métodos en Rust. \n")]
+    Metodos,
+    #[command(description = "Send Image. \n")]
+    Image,
     #[command(description = "Envía este mensaje \n")]
     Help,
 }
@@ -102,8 +111,6 @@ async fn main() {
 
     Command::repl(bot, action).await;
 }
-
-
 
 // Función de acción para cada comando.
 async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
@@ -151,7 +158,16 @@ async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.send_message(msg.chat.id, "En Rust, Match es el equivalente a Switch en otros lenguajes. Con Match podemos evaluar un valor en diferentes casos. \n\nEjemplo en Rust: \nlet numero : i32 = 55; \n\nMatch numero {\n         1 => println!('El número es uno.'), \n\n         2 => println!('El número es dos.'), \n\n         3 => println!('El número es tres.'), \n\n         4 | 5 | 6 => println!('El numero está entre cuatro y seis.'), \n\n         7..=100 => {\n                println!('El número es mayor o igual a 7'); \n                println!('El número se evalúa mediante un rango.'); \n         }, \n\n         _ => println!('{}', numero) \n}").await?;
         }
         Command::Enums => {
-            bot.send_message(msg.chat.id, "Un Enum es un tipo que almacena diferentes variantes, almacena diferentes opciones. \n\nEjemplo en Rust: \n").await?;
+            bot.send_message(msg.chat.id, "Un Enum es un tipo que almacena diferentes variantes, almacena diferentes opciones. \n\nEjemplo en Rust: \nenum Response {\n          Sucess, // Se completó correctamente \n          Error(u32, String), // Podemos indicar un código de Error a través de una Tupla \n}").await?;
+        }
+        Command::Funciones => {
+            bot.send_message(msg.chat.id, "Las funciones son bloques de código que se pueden reutilizar en diferentes partes de nuestro programa. \n\nEjemplo en Rust: \nfn saludar(nombre: &str) {\n      println!('Hola {}', nombre); \n} \n\nfn main() {\n      saludar('Juan'); \n}").await?;
+        }
+        Command::Metodos => {
+            bot.send_message(msg.chat.id, "Los métodos son similares a las funciones, pero se diferencian en que los métodos se definen dentro de un contexto, como una estructura o un Enum. \n\nEjemplo en Rust: \nstruct Rectangulo { \n      ancho: u32, \n      alto: u32, \n} \n\nimpl Rectangulo { \n      fn area(&self) -> u32 { \n            self.ancho * self.alto \n      } \n} \n\nfn main() { \n      let rectangulo = Rectangulo { \n            ancho: 30, \n            alto: 50, \n      }; \n\n      println!('El área del rectángulo es: {}', rectangulo.area()); \n}").await?;
+        }
+        Command::Imagenes => {
+            bot.send_photo(chat_id, InputFile::file("./assets/img/comprobar.png")).await?;
         }
         Command::Kick => kick_user(bot, msg).await?,
         Command::Ban => ban_user(bot, msg).await?,
@@ -160,6 +176,9 @@ async fn action(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
 
     Ok(())
 }
+
+// Función para enviar imágenes
+
 
 // Expulsar a un usuario con un mensaje respondido.
 async fn kick_user(bot: Bot, msg: Message) -> ResponseResult<()> {
