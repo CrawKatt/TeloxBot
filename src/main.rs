@@ -118,6 +118,8 @@ enum Command {
     Gif,
     #[command(description = "Envía este mensaje\\. \n")]
     Help,
+    #[command(description = "Acerca de este Bot\\. \n")]
+    About,
 }
 // Unidad de tiempo para el comando mute.
 #[derive(Clone)]
@@ -314,6 +316,10 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/ban.gif")).await?;
             // Usamos InputFile::file para enviar un archivo local y asignamos la ruta con (./ruta/de/la/audio.mp3)).await?;
             // Nota: crear la carpeta de assets en la ubicación raíz del proyecto
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::About => {
+            bot.send_message(msg.chat.id, "Bot creado por @CrawKatt \n\nGitHub: \nhttps://github\\.com/CrawKatt").await?;
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::Ban => ban_user(bot, msg).await?,
