@@ -76,6 +76,40 @@ enum Command {
     Return,
     #[command(description = "Explica el uso de Métodos en Rust\\. \n")]
     Metodos,
+    #[command(description = "Explica el uso de Closures en Rust\\. \n")]
+    Closures,
+    #[command(description = "Explica el uso de Structs en Rust\\. \n")]
+    Structs,
+    #[command(description = "Explica el uso de Traits en Rust\\. \n")]
+    Traits,
+    #[command(description = "Explica el uso de Option en Rust\\. \n")]
+    Option,
+    #[command(description = "Explica el uso de Result en Rust\\. \n")]
+    Result,
+    #[command(description = "Explica el uso de Generics en Rust\\. \n")]
+    Generics,
+    #[command(description = "Explica el uso de Lifetimes en Rust\\. \n")]
+    Lifetimes,
+    #[command(description = "Explica el uso de Macros en Rust\\. \n")]
+    Macros,
+    #[command(description = "Explica el uso de Ownership en Rust\\. \n")]
+    Ownership,
+    #[command(description = "Explica el uso de Referencias en Rust\\. \n")]
+    Referencias,
+    #[command(description = "Explica el uso de Borrowing en Rust\\. \n")]
+    Borrowing,
+    #[command(description = "Explica el uso de los Módulos en Rust\\. \n")]
+    Modulos,
+    #[command(description = "Explica el uso de los Crates en Rust\\. \n")]
+    Crates,
+    #[command(description = "Explica el Shadowing en Rust\\. \n")]
+    Shadowing,
+    #[command(description = "Explica el uso de los Slices en Rust\\. \n")]
+    Slices,
+    #[command(description = "Explica el uso de los Strings en Rust\\. \n")]
+    Strings,
+    #[command(description = "Explica el uso de los Iterators en Rust\\. \n")]
+    Iterators,
     #[command(description = "Envía una Imagen\\. \n")]
     Image,
     #[command(description = "Envía un Video\\. \n")]
@@ -129,7 +163,7 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::Start => {
-            bot.send_message(msg.chat.id, "`Hola, soy un Bot de Administración`").await?;
+            bot.send_message(msg.chat.id, Command::descriptions().to_string()).await?;
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::Variables => {
@@ -141,7 +175,7 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::TiposDeDatos => {
-            bot.send_message(msg.chat.id, "Tipos de Datos: Las variables se definen con un tipo de dato que puede ser: \n\nUn número entero \nUn número Flotante/Decimal \nUn numero negativo \nUn String/Cadena (Palabra o letra), etc \n\nEjemplo en Rust: \ni8,i16,i32,i64,i128 = Tipo Entero \nu8,u16,u32,u64,u128 = Tipo Entero (Solo números positivos)").await?;
+            bot.send_message(msg.chat.id, "Tipos de Datos: Las variables se definen con un tipo de dato que puede ser: \n\nUn número entero \nUn número Flotante/Decimal \nUn numero negativo \nUn String/Cadena \\(Palabra o letra\\), etc \n\nEjemplo en Rust: \ni8,i16,i32,i64,i128 \\= Tipo Entero \nu8,u16,u32,u64,u128 \\= Tipo Entero \\(Solo números positivos\\)").await?;
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::Operadores => {
@@ -165,7 +199,7 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::Loop => {
-            bot.send_message(msg.chat.id, "Es un Bucle infinito").await?;
+            bot.send_message(msg.chat.id, "El bucle es una estructura de control que nos permite repetir un bloque de código tantas veces como sea necesario\\. \n\nEjemplo en Rust: \n`fn main() { \n   let mut contador = 0; \n\n   loop { \n      contador += 1; \n\n      if contador == 10 { \n         break; \n      } \n   } \n}`").await?;
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::For => {
@@ -173,7 +207,7 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::While => {
-            bot.send_message(msg.chat.id, "Próximamente").await?;
+            bot.send_message(msg.chat.id, "El bucle while se usa para ejecutar un bloque de código mientras una condición sea verdadera\\. \n\nEjemplo en Rust: \n`fn main() { \n   let mut x = 1; \n\n   while x < 1000 { \n      x *= 2; \n\n      if x == 64 { continue; } \n\n      println!('x = {}', x); \n   } \n}`").await?;
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::Match => {
@@ -193,7 +227,75 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::Return => {
-            bot.send_message(msg.chat.id, "Próximamente").await?;
+            bot.send_message(msg.chat.id, "La declaración return nos permite retornar un valor de una función\\. \n\nEjemplo en Rust: \n`fn main() { \n   let x = 5; \n\n   let y = { \n       let x = 3; \n       x + 1 \n   }; \n\n   println!('El valor de y es: {}', y); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Structs => {
+            bot.send_message(msg.chat.id, "Las estructuras son tipos de datos personalizados que nos permiten agrupar diferentes valores en un solo tipo\\. \n\nEjemplo en Rust: \n`struct Rectángulo { \n   ancho: u32, \n   alto: u32, \n} \n\nfn main() { \n   let rectangulo = Rectangulo { \n     ancho: 30, \n     alto: 50, \n   }; \n\n   println!('El área del rectángulo es: {}', \n   rectángulo.ancho * rectángulo.alto); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Traits => {
+            bot.send_message(msg.chat.id, "Los rasgos son una característica de Rust que nos permite definir comportamientos comunes para diferentes tipos de datos\\. \n\nEjemplo en Rust: \n`trait Sumar { \n   fn sumar(&self, x: i32) -> i32; \n} \n\nstruct Numero { \n   valor: i32, \n} \n\nimpl Sumar for Numero { \n   fn sumar(&self, x: i32) -> i32 { \n      self.valor + x \n   } \n} \n\nfn main() { \n   let numero = Numero { valor: 5 }; \n\n   println!('El resultado es: {}', numero.sumar(5)); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Closures => {
+            bot.send_message(msg.chat.id, "Las Closures son funciones anónimas que se pueden almacenar en variables o pasar como argumentos a otras funciones\\. \n\nEjemplo en Rust: \n`let suma = |a: i32, b: i32| -> i32 { \n   a + b \n}; \n\nfn main() { \n   let resultado = suma(5, 5); \n   println!('El resultado es: {}', resultado); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Generics => {
+            bot.send_message(msg.chat.id, "Los Generics nos permiten crear funciones y estructuras que pueden aceptar diferentes tipos de datos\\. \n\nEjemplo en Rust: \n`struct Punto<T> { \n   x: T, \n   y: T, \n} \n\nfn main() { \n   let punto = Punto { \n      x: 5, \n      y: 10, \n   }; \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Option => {
+            bot.send_message(msg.chat.id, "Option es un Enum que puede tener dos variantes: Some o None\\. \n\nEjemplo en Rust: \n`let numero : Option<i32> = Some(5); \n\nmatch numero { \n   Some(x) => println!('El número es: {}', x), \n   None => println!('No hay número'), \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Result => {
+            bot.send_message(msg.chat.id, "El tipo Result es un Enum que representa el resultado de una operación que puede fallar\\. \n\nEjemplo en Rust: \n`enum Result<T, E> { \n   Ok(T), \n   Err(E), \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Iterators => {
+            bot.send_message(msg.chat.id, "Los Iteradores son un tipo de dato que nos permiten iterar sobre una colección de datos\\. \n\nEjemplo en Rust: \n`let numeros = vec![1, 2, 3, 4, 5]; \n\nfor numero in numeros.iter() { \n   println!('El valor de número: {:?}', numero); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Crates => {
+            bot.send_message(msg.chat.id, "Un Crate es un paquete de código que podemos utilizar en nuestro programa\\. \n\nEjemplo en Rust: \n`use rand::Rng; \n\nfn main() { \n   let numero = rand::thread_rng().gen_range(1..101); \n   println!('El número aleatorio es: {}', numero); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Shadowing => {
+            bot.send_message(msg.chat.id, "El Shadowing nos permite reutilizar el nombre de una variable con un nuevo valor\\. \n\nEjemplo en Rust: \n`fn main() { \n   let x = 5; \n\n   let x = x + 1; \n\n   let x = x * 2; \n\n   println!('El valor de x es: {}', x); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Ownership => {
+            bot.send_message(msg.chat.id, "La propiedad de Rust es un concepto que nos permite controlar el acceso y la modificación de datos\\. \n\nEjemplo en Rust: \n`fn main() { \n   let s1 = String::from('hola'); \n   let s2 = s1; \n   println!('El valor de s1 es: {}', s1); \n   println!('El valor de s2 es: {}', s2); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Referencias => {
+            bot.send_message(msg.chat.id, "Las referencias nos permiten acceder a un valor sin tomar posesión de él\\. \n\nEjemplo en Rust: \n`fn main() { \n   let s1 = String::from('Hola'); \n   let len = calcular_longitud(&s1); \n\n   println!('La longitud de {} es {}', s1, len); \n} \n\nfn calcular_longitud(s: &String) -> usize { \n   s.len() \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Borrowing => {
+            bot.send_message(msg.chat.id, "El préstamo es una característica de Rust que permite que un valor sea prestado a una función, método u otro valor\\. \n\nEjemplo en Rust: \n`fn main() { \n   let mut s = String::from('Hola'); \n\n   cambiar(&mut s); \n\n   println!('El valor de s es: {}', s); \n} \n\nfn cambiar(s: &mut String) { \n   s.push_str(', mundo'); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Slices => {
+            bot.send_message(msg.chat.id, "Un slice es una referencia a una secuencia de elementos de una colección\\. \n\nEjemplo en Rust: \n`let numeros = [1, 2, 3, 4, 5]; \n\nlet slice = &numeros[1..3]; \n\nprintln!('El slice es: {:?}', slice); \n\n// El slice es: [2, 3]`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Modulos => {
+            bot.send_message(msg.chat.id, "Los módulos nos permiten organizar nuestro código en diferentes archivos\\. \n\nEjemplo en Rust: \n`// main.rs \nmod funciones; \n\nfn main() {\n   funciones::saludar('Juan'); \n}` \n\n`// funciones.rs \npub fn saludar(nombre: &str) {\n   println!('Hola {}', nombre); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Strings => {
+            bot.send_message(msg.chat.id, "Las cadenas son una estructura de datos que almacena una secuencia de caracteres\\. \n\nEjemplo en Rust: \n`fn main() { \n   let mut s = String::new(); \n\n   let datos = 'Hola'; \n\n   let s = datos.to_string(); \n\n   let s = `").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Lifetimes => {
+            bot.send_message(msg.chat.id, "Las vidas útiles nos permiten especificar la duración de una referencia\\. \n\nEjemplo en Rust: \n`fn main() { \n   let s1 = String::from('Hola'); \n   let s`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Macros => {
+            bot.send_message(msg.chat.id, "Los macros nos permiten escribir código que produce código\\. \n\nEjemplo en Rust: \n`macro_rules! say_hello { \n   () => ( \n      println!('Hola'); \n   ) \n} \n\nfn main() { \n   say_hello!(); \n}`").await?;
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
         Command::Image => {
