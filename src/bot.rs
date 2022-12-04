@@ -1,1 +1,1 @@
-// Próximamente
+// proximamente

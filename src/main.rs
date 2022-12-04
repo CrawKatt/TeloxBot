@@ -13,6 +13,9 @@ use teloxide::adaptors::DefaultParseMode;
 use teloxide::types::{InputFile};
 use teloxide_core::types::ParseMode::MarkdownV2;
 
+// Librería para aleatorizar imágenes
+use rand::Rng;
+
 type MyBot = DefaultParseMode<Bot>;
 
 // Derive BotCommands para analizar texto con un comando en esta enumeración.
@@ -110,6 +113,14 @@ enum Command {
     Strings,
     #[command(description = "Explica el uso de los Iterators en Rust\\. \n")]
     Iterators,
+    #[command(description = "Explica los Scopes en Rust\\. \n")]
+    Scopes,
+    #[command(description = "Explica el uso de rand en Rust\\. \n")]
+    Random,
+    #[command(description = "Explica el uso de los Chrono en Rust\\. \n")]
+    Chrono,
+    #[command(description = "Explica el uso de los Async en Rust\\. \n")]
+    Async,
     #[command(description = "Envía una Imagen\\. \n")]
     Image,
     #[command(description = "Envía un Video\\. \n")]
@@ -300,12 +311,33 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.send_message(msg.chat.id, "Los macros nos permiten escribir código que produce código\\. \n\nEjemplo en Rust: \n`macro_rules! say_hello { \n   () => ( \n      println!('Hola'); \n   ) \n} \n\nfn main() { \n   say_hello!(); \n}`").await?;
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
+        Command::Random => {
+            bot.send_message(msg.chat.id, "El módulo de aleatoriedad nos permite generar números aleatorios\\. \n\nEjemplo en Rust: \n`use rand::Rng; \n\nfn main() { \n   let mut rng = rand::thread_rng(); \n   let numero = rng.gen_range(1..101); \n   println!('El número aleatorio es: {}', numero); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Async => {
+            bot.send_message(msg.chat.id, "La programación asíncrona es un estilo de programación que permite ejecutar múltiples tareas simultáneamente\\. \n\nEjemplo en Rust: \n`use tokio::time::{sleep, Duration}; \n\n#[tokio::main] \nasync fn main() { \n   println!('Iniciando'); \n   sleep(Duration::from_secs(1)).await; \n   println!('Terminado'); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Chrono => {
+            bot.send_message(msg.chat.id, "El módulo Chrono nos permite trabajar con fechas y horas\\. \n\nEjemplo en Rust: \n`use chrono::prelude::*; \n\nfn main() { \n   let ahora = Utc::now(); \n   println!('La fecha y hora actual es: {}', ahora); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+        Command::Scopes => {
+            bot.send_message(msg.chat.id, "Los ámbitos nos permiten controlar la visibilidad de los elementos\\. \n\nEjemplo en Rust: \n`fn main() { \n   let x = 5; \n\n   { \n      let y = 10; \n      println!('El valor de x es: {} y el valor de y es: {}', x, y); \n   } \n\n   println!('El valor de x es: {} y el valor de y es: {}', x, y); \n}`").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+
         Command::Image => {
             bot.send_photo(msg.chat.id, InputFile::file("./assets/img/comprobar.png")).await?;
             // Usamos InputFile::file para enviar un archivo local y asignamos la ruta con (./ruta/de/la/imagen.jpg)).await?;
             // Nota: crear la carpeta de assets en la ubicación raíz del proyecto
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
+
+        // Llamar a la función (No Funciona)
+        //Command::Image => send_random_image(bot, msg).await?,
+
         Command::Video => {
             bot.send_video(msg.chat.id, InputFile::file("./assets/video/report.mp4")).await?;
             // Usamos InputFile::file para enviar un archivo local y asignamos la ruta con (./ruta/de/la/video.mp4)).await?;
@@ -327,6 +359,20 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
         Command::Mute { time, unit } => mute_user(bot, msg, calc_restrict_time(time, unit)).await?,
     };
 
+    Ok(())
+}
+
+// Enviar una imagen aleatoria
+async fn send_random_image(bot: MyBot, msg: Message) -> ResponseResult<()> {
+    let mut rng = rand::thread_rng();
+    let random_number = rng.gen_range(1..=3);
+
+    match random_number {
+        1 => bot.send_photo(msg.chat.id, InputFile::file("./assets/img/comprobar.png")).await?,
+        2 => bot.send_photo(msg.chat.id, InputFile::file("./assets/img/programacion.png")).await?,
+        3 => bot.send_photo(msg.chat.id, InputFile::file("./assets/img/rust.png")).await?,
+        _ => bot.send_photo(msg.chat.id, InputFile::file("./assets/img/comprobar.png")).await?,
+    };
     Ok(())
 }
 
