@@ -434,7 +434,7 @@ async fn send_random_image(bot: MyBot, msg: Message) -> ResponseResult<()> {
     }
 }
 
-// Banear a un usuario con mensaje respondido.
+// Banear a un usuario con mensaje respondido
 async fn ban_user(bot: MyBot, msg: Message) -> ResponseResult<()> {
     match msg.reply_to_message() {
         Some(replied) => {
