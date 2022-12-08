@@ -371,16 +371,16 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.send_message(msg.chat.id, "Los ámbitos nos permiten controlar la visibilidad de los elementos\\. \n\nEjemplo en Rust: \n`fn main() { \n   let x = 5; \n\n   { \n      let y = 10; \n      println!('El valor de x es: {} y el valor de y es: {}', x, y); \n   } \n\n   println!('El valor de x es: {} y el valor de y es: {}', x, y); \n}`").await?;
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
-/*
+
         Command::Image => {
             bot.send_photo(msg.chat.id, InputFile::file("./assets/img/comprobar.png")).await?;
             // Usamos InputFile::file para enviar un archivo local y asignamos la ruta con (./ruta/de/la/imagen.jpg)).await?;
             // Nota: crear la carpeta de assets en la ubicación raíz del proyecto
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
-*/
+
         // Llamar a la función (No Funciona)
-        Command::Image => send_random_image(bot, msg).await?,
+        //Command::Image => send_random_image(bot, msg).await?,
 
         Command::Inline => {
             bot.send_message(msg.chat.id, "Los botones inline nos permiten crear botones dentro de un mensaje\\. \n\nEjemplo en Rust: \n`use teloxide::prelude::*; \nuse teloxide::types::InlineKeyboardButton; \nuse teloxide::types::InlineKeyboardMarkup; \n\n#[tokio::main] \nasync fn main() { \n   teloxide::enable_logging!(); \n   log::info!('Bot iniciado'); \n   run().await; \n} \n\nasync fn run() { \n   let bot = Bot::from_env(); \n   Dispatcher::new(bot) \n      .messages_handler(|rx: DispatcherHandlerRx<Message>| { \n         rx.for_each(|message| async move { \n            let bot = message.bot.clone(); \n            let chat_id = message.chat.id; \n            let mut keyboard = InlineKeyboardMarkup::default(); \n            keyboard.add_row(vec![ \n               InlineKeyboardButton::callback('Botón 1', 'boton1'), \n               InlineKeyboardButton::callback('Botón 2', 'boton2'), \n            ]); \n            bot.send_message(chat_id, 'Mensaje con botones') \n               .reply_markup(keyboard) \n               .send() \n               .await \n               .log_on_error() \n               .await; \n         }) \n      }) \n      .dispatch() \n      .await; \n}`").await?;
