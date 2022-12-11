@@ -39,9 +39,9 @@ parse_with = "split"
 // Los comandos disponibles.
 enum Command {
     #[command(description = "Banea a un usuario del chat\\. \n\nUso: /ban respondiendo un mensaje de un usuario\\. \n\n")]
-    Bann,
+    Ban,
     #[command(description = "Desbanea a un usuario del chat\\. \n\nUso: /unban respondiendo un mensaje de un usuario\\. \n\n")]
-    Unbann,
+    Unban,
     #[command(description = "Silencia a un usuario del chat\\. \n\nUso: /mute respondiendo un mensaje de un usuario\\. \n\n")]
     Mute,
     #[command(description = "Mensaje de inicio del Bot\\. \n")]
@@ -417,8 +417,8 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
 
-        Command::Bann => ban_user(bot, msg).await?,
-        Command::Unbann => unban_user(bot, msg).await?,
+        Command::Ban => ban_user(bot, msg).await?,
+        Command::Unban => unban_user(bot, msg).await?,
         //Command::Mute { time, unit } => mute_user(bot, msg, calc_restrict_time(time, unit)).await?, // DEPRECATED
         Command::Mute => mute_user_two(bot, msg).await?,
     };
@@ -588,6 +588,7 @@ async fn mute_user_two(bot: MyBot, msg: Message) -> ResponseResult<()> {
 }
 
 /*
+
 // Silenciar a un usuario con un mensaje respondido (DEPRECATED).
 async fn mute_user(bot: MyBot, msg: Message, time: Duration) -> ResponseResult<()> {
     match msg.reply_to_message() {
