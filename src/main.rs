@@ -588,7 +588,6 @@ async fn mute_user_two(bot: MyBot, msg: Message) -> ResponseResult<()> {
 }
 
 /*
-
 // Silenciar a un usuario con un mensaje respondido (DEPRECATED).
 async fn mute_user(bot: MyBot, msg: Message, time: Duration) -> ResponseResult<()> {
     match msg.reply_to_message() {
