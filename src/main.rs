@@ -564,9 +564,10 @@ async fn ban_user(bot: MyBot, msg: Message) -> ResponseResult<()> {
 async fn unban_user(bot: MyBot, msg: Message) -> ResponseResult<()> {
     match msg.reply_to_message() {
         Some(replied) => {
+            let user = msg.reply_to_message().unwrap().from().unwrap();
             bot.delete_message(msg.chat.id, msg.id).await?;
             bot.unban_chat_member(msg.chat.id, replied.from().unwrap().id).await?;
-            bot.send_message(msg.chat.id, "Usuario Desbaneado\\!").await?;
+            bot.send_message(msg.chat.id, format!("{} ha sido desbaneado", user.first_name)).await?;
             bot.send_video(msg.chat.id, InputFile::file("./assets/videos/unban.mp4")).await?;
         }
         None => {
