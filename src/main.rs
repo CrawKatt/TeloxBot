@@ -478,7 +478,7 @@ async fn send_random_meme(bot: MyBot, msg: Message) -> ResponseResult<()> {
         1 => bot.send_video(msg.chat.id, InputFile::file("./assets/memes/2.mp4")).await?,
         2 => bot.send_video(msg.chat.id, InputFile::file("./assets/memes/3.mp4")).await?,
         3 => bot.send_video(msg.chat.id, InputFile::file("./assets/memes/4.mp4")).await?,
-        4 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/5.jpg")).await?,
+        4 => bot.send_video(msg.chat.id, InputFile::file("./assets/memes/5.mp4")).await?,
         5 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/6.jpg")).await?,
         6 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/7.jpg")).await?,
         7 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/8.jpg")).await?,
