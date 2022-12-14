@@ -1,5 +1,5 @@
 // Librería para los Strings
-use std::str::FromStr;
+// use std::str::FromStr;
 
 // Librería para manejar las variables de entorno
 use dotenv::dotenv;
@@ -44,6 +44,8 @@ enum Command {
     Unban,
     #[command(description = "Silencia a un usuario del chat\\. \n\nUso: /mute respondiendo un mensaje de un usuario\\. \n\n")]
     Mute,
+    #[command(description = "Desilencia a un usuario del chat\\. \n\nUso: /unmute respondiendo un mensaje de un usuario\\. \n\n")]
+    Unmute,
     #[command(description = "Mensaje de inicio del Bot\\. \n")]
     Start,
     #[command(description = "Explica el uso de variables en Rust\\. \n")]
@@ -124,10 +126,6 @@ enum Command {
     Menu,
     #[command(description = "Explica el uso de los Inline de Teloxide en Rust\\. \n")]
     Inline,
-    #[command(description = "Envía una Imagen\\. \n")]
-    Image,
-    #[command(description = "Envía un Video\\. \n")]
-    Video,
     #[command(description = "Envía un Gif\\. \n")]
     Pat,
     #[command(description = "Envía un Meme de Programación\\. \n")]
@@ -136,14 +134,20 @@ enum Command {
     Help,
     #[command(description = "Acerca de este Bot\\. \n")]
     About,
+    #[command(description = "Comando para ver las novedades de la ultima versión del Bot.\\. \n")]
+    Novedades,
 }
 // Unidad de tiempo para el comando mute.
+/*
 #[derive(Clone)]
 enum UnitOfTime {
     Seconds,
     Minutes,
     Hours,
 }
+
+ */
+/*
 // Implementación de FromStr para UnitOfTime
 impl FromStr for UnitOfTime {
     type Err = &'static str;
@@ -156,6 +160,7 @@ impl FromStr for UnitOfTime {
         }
     }
 }
+*/
 // Función principal para el inicio del Bot mediante una Variable de Entorno.
 async fn run() {
     dotenv().ok();
@@ -167,6 +172,7 @@ async fn main() {
     pretty_env_logger::init();
     run().await;
     log::info!("Starting admin bot...");
+    println!("Bot Iniciado!");
 
     let bot = Bot::from_env().parse_mode(MarkdownV2);
 
@@ -370,16 +376,6 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.send_message(msg.chat.id, "Los ámbitos nos permiten controlar la visibilidad de los elementos\\. \n\nEjemplo en Rust: \n`fn main() { \n   let x = 5; \n\n   { \n      let y = 10; \n      println!('El valor de x es: {} y el valor de y es: {}', x, y); \n   } \n\n   println!('El valor de x es: {} y el valor de y es: {}', x, y); \n}`").await?;
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
-/*      // Comando para enviar imagen (DEPRECATED)
-        Command::Image => {
-            bot.send_photo(msg.chat.id, InputFile::file("./assets/images/1.png")).await?;
-            // Usamos InputFile::file para enviar un archivo local y asignamos la ruta con (./ruta/de/la/imagen.jpg)).await?;
-            // Nota: crear la carpeta de assets en la ubicación raíz del proyecto
-            bot.delete_message(msg.chat.id, msg.id).await?;
-        }
-*/
-        // Llamar a la función (No Funciona)
-        Command::Image => send_random_image(bot, msg).await?,
 
         Command::Inline => {
             bot.send_message(msg.chat.id, "Los botones inline nos permiten crear botones dentro de un mensaje\\. \n\nEjemplo en Rust: \n`use teloxide::prelude::*; \nuse teloxide::types::InlineKeyboardButton; \nuse teloxide::types::InlineKeyboardMarkup; \n\n#[tokio::main] \nasync fn main() { \n   teloxide::enable_logging!(); \n   log::info!('Bot iniciado'); \n   run().await; \n} \n\nasync fn run() { \n   let bot = Bot::from_env(); \n   Dispatcher::new(bot) \n      .messages_handler(|rx: DispatcherHandlerRx<Message>| { \n         rx.for_each(|message| async move { \n            let bot = message.bot.clone(); \n            let chat_id = message.chat.id; \n            let mut keyboard = InlineKeyboardMarkup::default(); \n            keyboard.add_row(vec![ \n               InlineKeyboardButton::callback('Botón 1', 'boton1'), \n               InlineKeyboardButton::callback('Botón 2', 'boton2'), \n            ]); \n            bot.send_message(chat_id, 'Mensaje con botones') \n               .reply_markup(keyboard) \n               .send() \n               .await \n               .log_on_error() \n               .await; \n         }) \n      }) \n      .dispatch() \n      .await; \n}`").await?;
@@ -391,17 +387,41 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
 
-/*      // Comando para enviar Video (DEPRECATED)
+        Command::Novedades => {
+            bot.send_message(msg.chat.id, "Cambios de la Versión 1\\.2 \n\n*Añadido:* Comando /unmute que remueve el silencio a un usuario silenciado \n\n*Uso:* /unmute respondiendo un mensaje del usuario silenciado \n\n*Añadido:* Más memes a los assets del Bot para mayor variedad del comando /meme \n\n*Añadido:* Más videos y gifs a los assets del Bot para mayor variedad al banear a un usuario con /ban").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+
+        Command::About => {
+            bot.send_message(msg.chat.id, "Bot creado por @CrawKatt \n\nGitHub: \nhttps://github\\.com/CrawKatt").await?;
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+
+        Command::Pat => send_pat(bot, msg).await?,
+        Command::Meme => send_random_meme(bot, msg).await?,
+        Command::Ban => ban_user(bot, msg).await?,
+        Command::Unban => unban_user(bot, msg).await?,
+        Command::Mute => mute_user_two(bot, msg).await?,
+        Command::Unmute => unmute_user(bot, msg).await?,
+/*      Command::Mute { time, unit } => mute_user(bot, msg, calc_restrict_time(time, unit)).await?, // DEPRECATED
+
+        // Comando para enviar imagen (DEPRECATED)
+        Command::Image => {
+            bot.send_photo(msg.chat.id, InputFile::file("./assets/images/1.png")).await?;
+            // Usamos InputFile::file para enviar un archivo local y asignamos la ruta con (./ruta/de/la/imagen.jpg)).await?;
+            // Nota: crear la carpeta de assets en la ubicación raíz del proyecto
+            bot.delete_message(msg.chat.id, msg.id).await?;
+        }
+
+        // Comando para enviar Video (DEPRECATED)
         Command::Video => {
             bot.send_video(msg.chat.id, InputFile::file("./assets/video/boshi.mp4")).await?;
             // Usamos InputFile::file para enviar un archivo local y asignamos la ruta con (./ruta/de/la/video.mp4)).await?;
             // Nota: crear la carpeta de assets en la ubicación raíz del proyecto
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
-*/
-        Command::Video => send_random_video(bot, msg).await?,
 
-/*      // Comando para enviar un gif (DEPRECATED)
+      // Comando para enviar un gif (DEPRECATED)
         Command::Gif => {
             bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/ban.gif")).await?;
             // Usamos InputFile::file para enviar un archivo local y asignamos la ruta con (./ruta/de/la/audio.mp3)).await?;
@@ -409,84 +429,55 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
 */
-
-        Command::Pat => send_random_gif(bot, msg).await?,
-        Command::Meme => send_random_meme(bot, msg).await?,
-        Command::About => {
-            bot.send_message(msg.chat.id, "Bot creado por @CrawKatt \n\nGitHub: \nhttps://github\\.com/CrawKatt").await?;
-            bot.delete_message(msg.chat.id, msg.id).await?;
-        }
-
-        Command::Ban => ban_user(bot, msg).await?,
-        Command::Unban => unban_user(bot, msg).await?,
-        //Command::Mute { time, unit } => mute_user(bot, msg, calc_restrict_time(time, unit)).await?, // DEPRECATED
-        Command::Mute => mute_user_two(bot, msg).await?,
     };
 
-    Ok(())
-}
-
-// Enviar una imagen aleatoria
-
-async fn send_random_image(bot: MyBot, msg: Message) -> ResponseResult<()> {
-    let mut rng : StdRng = SeedableRng::from_entropy();
-    let random_number = rng.gen_range(0..=6);
-    bot.delete_message(msg.chat.id, msg.id).await?;
-
-    match random_number {
-        0 => bot.send_photo(msg.chat.id, InputFile::file("./assets/images/1.png")).await?,
-        1 => bot.send_photo(msg.chat.id, InputFile::file("./assets/images/2.jpg")).await?,
-        2 => bot.send_photo(msg.chat.id, InputFile::file("./assets/images/3.png")).await?,
-        3 => bot.send_photo(msg.chat.id, InputFile::file("./assets/images/4.png")).await?,
-        _ => bot.send_photo(msg.chat.id, InputFile::file("./assets/images/5.png")).await?,
-    };
     Ok(())
 }
 
 // Enviar un gif aleatorio
 
-async fn send_random_gif(bot: MyBot, msg: Message) -> ResponseResult<()> {
+async fn send_pat(bot: MyBot, msg: Message) -> ResponseResult<()> {
     let mut rng : StdRng = SeedableRng::from_entropy();
     let random_number = rng.gen_range(0..=21);
     bot.delete_message(msg.chat.id, msg.id).await?;
 
     match random_number {
-        0 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/1.gif")).await?,
-        1 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/2.gif")).await?,
-        2 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/3.gif")).await?,
-        3 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/4.gif")).await?,
-        4 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/5.gif")).await?,
-        5 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/6.gif")).await?,
-        6 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/7.gif")).await?,
-        7 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/8.gif")).await?,
-        8 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/9.gif")).await?,
-        9 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/10.gif")).await?,
-        10 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/11.gif")).await?,
-        11 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/12.gif")).await?,
-        12 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/13.gif")).await?,
-        13 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/14.gif")).await?,
-        14 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/15.gif")).await?,
-        15 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/16.gif")).await?,
-        16 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/17.gif")).await?,
-        17 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/18.gif")).await?,
-        18 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/19.gif")).await?,
-        19 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/20.gif")).await?,
-        20 => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/21.gif")).await?,
-        _ => bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/21.gif")).await?,
+        0 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/1.gif")).await?,
+        1 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/2.gif")).await?,
+        2 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/3.gif")).await?,
+        3 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/4.gif")).await?,
+        4 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/5.gif")).await?,
+        5 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/6.gif")).await?,
+        6 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/7.gif")).await?,
+        7 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/8.gif")).await?,
+        8 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/9.gif")).await?,
+        9 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/10.gif")).await?,
+        10 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/11.gif")).await?,
+        11 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/12.gif")).await?,
+        12 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/13.gif")).await?,
+        13 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/14.gif")).await?,
+        14 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/15.gif")).await?,
+        15 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/16.gif")).await?,
+        16 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/17.gif")).await?,
+        17 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/18.gif")).await?,
+        18 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/19.gif")).await?,
+        19 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/20.gif")).await?,
+        20 => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/21.gif")).await?,
+        _ => bot.send_animation(msg.chat.id, InputFile::file("./assets/pat/21.gif")).await?,
     };
     Ok(())
 }
 
 async fn send_random_meme(bot: MyBot, msg: Message) -> ResponseResult<()> {
     let mut rng : StdRng = SeedableRng::from_entropy();
-    let random_number = rng.gen_range(0..=21);
+    let random_number = rng.gen_range(0..=28);
     bot.delete_message(msg.chat.id, msg.id).await?;
 
     match random_number {
-        0 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/1.jpg")).await?,
+        0 => bot.send_video(msg.chat.id, InputFile::file("./assets/memes/1.mp4")).await?,
         1 => bot.send_video(msg.chat.id, InputFile::file("./assets/memes/2.mp4")).await?,
-        2 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/3.jpg")).await?,
-        3 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/4.jpg")).await?,
+        2 => bot.send_video(msg.chat.id, InputFile::file("./assets/memes/3.mp4")).await?,
+        3 => bot.send_video(msg.chat.id, InputFile::file("./assets/memes/4.mp4")).await?,
         4 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/5.jpg")).await?,
         5 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/6.jpg")).await?,
         6 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/7.jpg")).await?,
@@ -504,41 +495,14 @@ async fn send_random_meme(bot: MyBot, msg: Message) -> ResponseResult<()> {
         18 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/19.jpg")).await?,
         19 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/20.jpg")).await?,
         20 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/21.jpg")).await?,
-
-        _ => bot.send_photo(msg.chat.id, InputFile::file("./assets/images/21.jpg")).await?,
-    };
-    Ok(())
-}
-
-// Enviar un video aleatorio
-async fn send_random_video(bot: MyBot, msg: Message) -> ResponseResult<()> {
-    let mut rng : StdRng = SeedableRng::from_entropy();
-    let random_number = rng.gen_range(0..=21);
-    bot.delete_message(msg.chat.id, msg.id).await?;
-
-    match random_number {
-        0 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/1.mp4")).await?,
-        1 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/2.mp4")).await?,
-        2 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/3.mp4")).await?,
-        3 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/4.mp4")).await?,
-        4 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/5.mp4")).await?,
-        5 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/6.mp4")).await?,
-        6 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/7.mp4")).await?,
-        7 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/8.mp4")).await?,
-        8 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/9.mp4")).await?,
-        9 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/10.mp4")).await?,
-        10 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/11.mp4")).await?,
-        11 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/12.mp4")).await?,
-        12 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/13.mp4")).await?,
-        13 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/14.mp4")).await?,
-        14 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/15.mp4")).await?,
-        15 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/16.mp4")).await?,
-        16 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/17.mp4")).await?,
-        17 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/18.mp4")).await?,
-        18 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/19.mp4")).await?,
-        19 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/20.mp4")).await?,
-        20 => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/21.mp4")).await?,
-        _ => bot.send_video(msg.chat.id, InputFile::file("./assets/videos/21.mp4")).await?,
+        21 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/22.jpg")).await?,
+        22 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/23.jpg")).await?,
+        23 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/24.jpg")).await?,
+        24 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/25.jpg")).await?,
+        25 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/26.jpg")).await?,
+        26 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/27.jpg")).await?,
+        27 => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/28.jpg")).await?,
+        _ => bot.send_photo(msg.chat.id, InputFile::file("./assets/memes/29.jpg")).await?,
     };
     Ok(())
 }
@@ -548,10 +512,32 @@ async fn ban_user(bot: MyBot, msg: Message) -> ResponseResult<()> {
     match msg.reply_to_message() {
         Some(replied) => {
             let user = msg.reply_to_message().unwrap().from().unwrap();
+            println!("{:?}", user);
+
             bot.delete_message(msg.chat.id, msg.id).await?;
             bot.ban_chat_member(msg.chat.id, replied.from().unwrap().id).await?;
             bot.send_message(msg.chat.id, format!("{} ha sido baneado", user.first_name)).await?;
-            bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/20.gif")).await?;
+
+            let mut rng : StdRng = SeedableRng::from_entropy();
+            let random_number = rng.gen_range(0..=15);
+
+            match random_number {
+                0  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/1.gif" )).await?,
+                1  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/2.gif" )).await?,
+                2  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/3.gif" )).await?,
+                3  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/4.gif" )).await?,
+                4  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/5.gif" )).await?,
+                5  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/6.gif" )).await?,
+                6  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/7.gif" )).await?,
+                7  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/8.gif" )).await?,
+                8  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/9.gif" )).await?,
+                9  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/10.gif")).await?,
+                10 => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/11.gif")).await?,
+                11 => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/12.mp4")).await?,
+                12 => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/13.mp4")).await?,
+                13  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/14.mp4")).await?,
+                _  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/15.mp4")).await?,
+            };
         }
         None => {
             bot.delete_message(msg.chat.id, msg.id).await?;
@@ -565,6 +551,8 @@ async fn unban_user(bot: MyBot, msg: Message) -> ResponseResult<()> {
     match msg.reply_to_message() {
         Some(replied) => {
             let user = msg.reply_to_message().unwrap().from().unwrap();
+            println!("{:?}", user);
+
             bot.delete_message(msg.chat.id, msg.id).await?;
             bot.unban_chat_member(msg.chat.id, replied.from().unwrap().id).await?;
             bot.send_message(msg.chat.id, format!("{} ha sido desbaneado", user.first_name)).await?;
@@ -580,14 +568,49 @@ async fn unban_user(bot: MyBot, msg: Message) -> ResponseResult<()> {
 // silenciar a un usuario por tiempo indeterminado
 async fn mute_user_two(bot: MyBot, msg: Message) -> ResponseResult<()> {
     let user = msg.reply_to_message().unwrap().from().unwrap();
+    println!("Info : {:?}", user);
+
+    let chat = msg.chat.id;
+    println!("Chat ID : {:?}", chat);
+
+    let usuario = user.clone().first_name;
+    println!("usuario : {:?}", usuario);
+
+    let username_user = user.clone().username;
+    println!("username_user : {:?}", username_user);
+
     bot.delete_message(msg.chat.id, msg.id).await?;
     bot.restrict_chat_member(msg.chat.id, user.id, ChatPermissions::empty()).await?;
-    bot.send_message(msg.chat.id, format!("{} ha sido silenciado", user.first_name)).await?;
-    bot.send_animation(msg.chat.id, InputFile::file("./assets/gifs/20.gif")).await?;
 
+    bot.send_message(msg.chat.id, format!("{} ha sido silenciado", user.first_name)).await?;
+
+    let mut rng: StdRng = SeedableRng::from_entropy();
+    let random_number = rng.gen_range(0..=6);
+
+    match random_number {
+        0 => bot.send_animation(msg.chat.id, InputFile::file("./assets/mute/1.gif")).await?,
+        1 => bot.send_animation(msg.chat.id, InputFile::file("./assets/mute/2.gif")).await?,
+        2 => bot.send_animation(msg.chat.id, InputFile::file("./assets/mute/3.gif")).await?,
+        3 => bot.send_animation(msg.chat.id, InputFile::file("./assets/mute/4.gif")).await?,
+        _ => bot.send_animation(msg.chat.id, InputFile::file("./assets/mute/5.jpg")).await?,
+    };
     Ok(())
 }
 
+
+// des silenciar a un usuario por tiempo indeterminado
+async fn unmute_user(bot: MyBot, msg: Message) -> ResponseResult<()> {
+    let user = msg.reply_to_message().unwrap().from().unwrap();
+    println!("Info : {:?}", user);
+
+    bot.delete_message(msg.chat.id, msg.id).await?;
+    bot.restrict_chat_member(msg.chat.id, user.id, ChatPermissions::all()).await?;
+    bot.send_message(msg.chat.id, format!("{} ya no está silenciado", user.first_name)).await?;
+
+    bot.send_video(msg.chat.id, InputFile::file("./assets/unmute/unmute.mp4")).await?;
+
+    Ok(())
+}
 /*
 
 // Silenciar a un usuario con un mensaje respondido (DEPRECATED).
@@ -610,9 +633,7 @@ async fn mute_user(bot: MyBot, msg: Message, time: Duration) -> ResponseResult<(
     Ok(())
 }
 
-
-
-// Calcula el tiempo de restricción de usuarios.
+// Calcula el tiempo de restricción de usuarios. (DEPRECATED)
 fn calc_restrict_time(time: u64, unit: UnitOfTime) -> Duration {
     match unit {
         UnitOfTime::Hours => Duration::hours(time as i64),
