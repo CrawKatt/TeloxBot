@@ -388,7 +388,7 @@ async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
         }
 
         Command::Novedades => {
-            bot.send_message(msg.chat.id, "Cambios de la Versión 1\\.2 \n\n*Añadido:* Comando /unmute que remueve el silencio a un usuario silenciado \n\n*Uso:* /unmute respondiendo un mensaje del usuario silenciado \n\n*Añadido:* Más memes a los assets del Bot para mayor variedad del comando /meme \n\n*Añadido:* Más videos y gifs a los assets del Bot para mayor variedad al banear a un usuario con /ban").await?;
+            bot.send_message(msg.chat.id, "Cambios de la Versión 1\\.2 \n\n*Añadido:* Comando /unmute que remueve el silencio a un usuario silenciado \n\n*Uso:* /unmute respondiendo un mensaje del usuario silenciado \n\n*Añadido:* Más memes a los assets del Bot para mayor variedad del comando /meme \n\n*Añadido:* Más videos y gifs a los assets del Bot para mayor variedad al banear a un usuario con /ban \n\n*Removido:* Comando /image creado solo con fines de debug y test de las funciones del Bot \n\n*Removido:* Comando /gif creado solo con fines de debug y test de las funciones del Bot \n\n*Removido:* Comando /video creado solo con fines de debug y test de las funciones del Bot").await?;
             bot.delete_message(msg.chat.id, msg.id).await?;
         }
 
