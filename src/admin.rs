@@ -116,7 +116,7 @@ pub async fn mute_user_admin(bot: comandos::MyBot, msg: Message) -> ResponseResu
     if chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner || chat_member.status() == ChatMemberStatus::Administrator {
         bot.delete_message(msg.chat.id, msg.id).await?;
         bot.restrict_chat_member(msg.chat.id, user.id, ChatPermissions::empty()).await?;
-        bot.send_message(msg.chat.id, format!("@{} ha sido desbaneado", username_user.unwrap())).await?;
+        bot.send_message(msg.chat.id, format!("@{} ha sido silenciado", username_user.unwrap())).await?;
         println!("Silenciado : @{}", user.first_name);
 
         let mut rng: StdRng = SeedableRng::from_entropy();
