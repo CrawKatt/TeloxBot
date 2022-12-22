@@ -1,6 +1,4 @@
 //use std::time::Duration;
-use crate::comandos;
-use crate::Message;
 use crate::ResponseResult;
 
 use rand::rngs::StdRng;
@@ -10,167 +8,214 @@ use rand::Rng;
 use teloxide::types::InputFile;
 use teloxide::types::ChatPermissions;
 use teloxide::prelude::Requester;
-use teloxide_core::types::ChatMemberStatus;
+use teloxide_core::prelude::{UserId};
+use teloxide_core::types::{ChatMemberStatus, Message};
+use crate::comandos::MyBot;
+
 
 // Banear a un usuario respondiendo un mensaje
-pub async fn ban_user(bot: comandos::MyBot, msg: Message) -> ResponseResult<()> {
-    match msg.reply_to_message() {
+pub async fn ban_user(bot: MyBot, msg: Message) -> ResponseResult<()> {
+    let user = msg.reply_to_message().and_then(|replied| replied.from()).unwrap();
+    let chat_id = msg.chat.id;
+    let username_user = user.username.clone().unwrap_or_default();
+    let chat_member = bot.get_chat_member(chat_id, msg.from().unwrap().id).await?;
+    let is_admin_or_owner = chat_member.status().is_administrator() || chat_member.status().is_owner();
+    if is_admin_or_owner {
+        bot.delete_message(chat_id, msg.id).await?;
+        bot.ban_chat_member(chat_id, user.id).await?;
+        bot.send_message(chat_id, format!("@{} ha sido baneado", username_user), ).await?;
+        let mut rng: StdRng = SeedableRng::from_entropy();
+        let random_number = rng.gen_range(0..=14);
+        let file_names = [
+            "1.gif", "2.gif", "3.gif", "4.gif", "5.gif",
+            "6.gif", "7.gif", "8.gif", "9.gif", "10.gif",
+            "11.gif", "12.mp4", "13.mp4", "14.mp4", "15.mp4",
+        ];
+        let get_file_name = |index: usize| -> &'static str {
+            file_names.get(index).unwrap_or_else(|| file_names.last().unwrap())
+        };
+        let file_path = format!("./assets/ban/{}", get_file_name(random_number));
 
-        Some(replied) => {
-
-            let user = msg.reply_to_message().unwrap().from().unwrap();
-            println!("Info : {:?}", user);
-
-            let username_user = user.clone().username;
-            println!("@username : {:?}", username_user);
-
-            let chat_member = bot.get_chat_member(msg.chat.id, msg.from().unwrap().id).await?;
-            println!("ID : {:?}", chat_member);
-
-            if chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner || chat_member.status() == ChatMemberStatus::Administrator {
-                bot.delete_message(msg.chat.id, msg.id).await?;
-                bot.ban_chat_member(msg.chat.id, replied.from().unwrap().id).await?;
-                bot.send_message(msg.chat.id, format!("@{} ha sido baneado", username_user.unwrap())).await?;
-
-                let mut rng : StdRng = SeedableRng::from_entropy();
-                let random_number = rng.gen_range(0..=15);
-                println!("Resultado : {}", random_number);
-
-                match random_number {
-                    0  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/1.gif" )).await?,
-                    1  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/2.gif" )).await?,
-                    2  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/3.gif" )).await?,
-                    3  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/4.gif" )).await?,
-                    4  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/5.gif" )).await?,
-                    5  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/6.gif" )).await?,
-                    6  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/7.gif" )).await?,
-                    7  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/8.gif" )).await?,
-                    8  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/9.gif" )).await?,
-                    9  => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/10.gif")).await?,
-                    10 => bot.send_animation(msg.chat.id, InputFile::file("./assets/ban/11.gif")).await?,
-                    11 => bot.send_video(msg.chat.id, InputFile::file("./assets/ban/12.mp4")).await?,
-                    12 => bot.send_video(msg.chat.id, InputFile::file("./assets/ban/13.mp4")).await?,
-                    13  => bot.send_video(msg.chat.id, InputFile::file("./assets/ban/14.mp4")).await?,
-                    _  => bot.send_video(msg.chat.id, InputFile::file("./assets/ban/15.mp4")).await?,
-                };
-            } else {
-                bot.delete_message(msg.chat.id, msg.id).await?;
-                bot.send_message(msg.chat.id, "No tienes permisos para banear a un usuario\\.").await?;
-            }
+        if file_path.ends_with(".gif") {
+            bot.send_animation(chat_id, InputFile::file(file_path)).await?;
+        } else {
+            bot.send_video(chat_id, InputFile::file(file_path)).await?;
         }
-
-        None => {
-            bot.delete_message(msg.chat.id, msg.id).await?;
-            bot.send_message(msg.chat.id, "Usa este comando respondiendo a otro mensaje").await?;
-        }
-
+    } else {
+        bot.delete_message(chat_id, msg.id).await?;
+        bot.send_message(chat_id, "No tienes permisos para usar este comando",).await?;
     }
     Ok(())
 }
-
-pub async fn unban_user(bot: comandos::MyBot, msg: Message) -> ResponseResult<()> {
-    match msg.reply_to_message() {
-
-        Some(replied) => {
-            let user = msg.reply_to_message().unwrap().from().unwrap();
-            println!("Info : {:?}", user);
-
-            let username_user = user.clone().username;
-            println!("@username : {:?}", username_user);
-
-            let chat_member = bot.get_chat_member(msg.chat.id, msg.from().unwrap().id).await?;
-            println!("ID : {:?}", chat_member);
-
-            if chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner || chat_member.status() == ChatMemberStatus::Administrator {
-                bot.delete_message(msg.chat.id, msg.id).await?;
-                bot.unban_chat_member(msg.chat.id, replied.from().unwrap().id).await?;
-                bot.send_message(msg.chat.id, format!("@{} ha sido desbaneado", username_user.unwrap())).await?;
-                bot.send_video(msg.chat.id, InputFile::file("./assets/unban/1.mp4")).await?;
-            } else {
-                bot.delete_message(msg.chat.id, msg.id).await?;
-                bot.send_message(msg.chat.id, "No tienes permisos para remover el ban a un usuario\\.").await?;
-            }
-        }
-
-        None => {
-            bot.delete_message(msg.chat.id, msg.id).await?;
-            bot.send_message(msg.chat.id, "Usa este comando respondiendo a otro mensaje").await?;
-        }
-
-    }
-    Ok(())
-}
-
-// silenciar a un usuario por tiempo indeterminado pero solo si el usuario que emplea el comando es administrador
-pub async fn mute_user_admin(bot: comandos::MyBot, msg: Message) -> ResponseResult<()> {
-
-    let user = msg.reply_to_message().unwrap().from().unwrap();
-    println!("Info : {:?}", user);
-
-    let username_user = user.clone().username;
-    println!("@username : {:?}", username_user);
-
-    let chat_member = bot.get_chat_member(msg.chat.id, msg.from().unwrap().id).await?;
-    println!("ID : {:?}", chat_member);
-
-    if chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner || chat_member.status() == ChatMemberStatus::Administrator {
+pub async fn ban_id(bot: MyBot, msg: Message) -> ResponseResult<()> {
+    let text = &msg.text().unwrap();
+    let (_, arguments) = text.split_at(text.find(' ').unwrap_or(text.len()));
+    let user_id = arguments.trim().parse::<i64>().unwrap();
+    let chat_id = msg.chat.id;
+    let chat_member = bot.get_chat_member(chat_id, msg.from().unwrap().id).await?;
+    let is_admin_or_owner = chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner;
+    if is_admin_or_owner {
+        bot.ban_chat_member(chat_id, UserId(user_id as u64)).await?;
         bot.delete_message(msg.chat.id, msg.id).await?;
-        bot.restrict_chat_member(msg.chat.id, user.id, ChatPermissions::empty()).await?;
-        bot.send_message(msg.chat.id, format!("@{} ha sido silenciado", username_user.unwrap())).await?;
-        println!("Silenciado : @{}", user.first_name);
-
+        bot.send_message(msg.chat.id, "Usuario Baneado").await?;
+        let mut rng: StdRng = SeedableRng::from_entropy();
+        let random_number = rng.gen_range(0..=14);
+        let file_names = [
+            "1.gif", "2.gif", "3.gif", "4.gif", "5.gif",
+            "6.gif", "7.gif", "8.gif", "9.gif", "10.gif",
+            "11.gif", "12.mp4", "13.mp4", "14.mp4", "15.mp4",
+        ];
+        let get_file_name = |index: usize| -> &'static str {
+            file_names.get(index).unwrap_or_else(|| file_names.last().unwrap())
+        };
+        let file_path = format!("./assets/ban/{}", get_file_name(random_number));
+        if file_path.ends_with(".gif") {
+            bot.send_animation(chat_id, InputFile::file(file_path)).await?;
+        } else {
+            bot.send_video(chat_id, InputFile::file(file_path)).await?;
+        }
+    } else {
+        bot.send_message(msg.chat.id, "No tienes permisos para banear a un usuario").await?;
+    }
+    Ok(())
+}
+pub async fn unban_user(bot: MyBot, msg: Message) -> ResponseResult<()> {
+    match msg.reply_to_message() {
+        Some(replied) => {
+            let user = replied.from().unwrap();
+            let chat_id = msg.chat.id;
+            let username_user = user.username.clone().unwrap_or_default();
+            let chat_member = bot.get_chat_member(chat_id, msg.from().unwrap().id).await?;
+            let is_admin_or_owner = chat_member.status().is_administrator() || chat_member.status().is_owner();
+            if is_admin_or_owner {
+                bot.delete_message(chat_id, msg.id).await?;
+                bot.unban_chat_member(chat_id, user.id).await?;
+                bot.send_message(chat_id, format!("@{} ha sido desbaneado", username_user)).await?;
+                bot.send_video(chat_id, InputFile::file("./assets/unban/1.mp4")).await?;
+            } else {
+                bot.delete_message(chat_id, msg.id).await?;
+                bot.send_message(chat_id, "No tienes permisos para remover el ban a un usuario.").await?;
+            }
+        }
+        None => {
+            bot.delete_message(msg.chat.id, msg.id).await?;
+            bot.send_message(msg.chat.id, "Usa este comando respondiendo a otro mensaje").await?;
+        }
+    }
+    Ok(())
+}
+pub async fn unban_id(bot: MyBot, msg: Message) -> ResponseResult<()> {
+    let text = &msg.text().unwrap();
+    let (_, arguments) = text.split_at(text.find(' ').unwrap_or(text.len()));
+    let user_id = arguments.trim().parse::<i64>().unwrap();
+    let chat_id = msg.chat.id;
+    let chat_member = bot.get_chat_member(chat_id, msg.from().unwrap().id).await?;
+    let is_admin_or_owner = chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner;
+    if is_admin_or_owner {
+        bot.unban_chat_member(chat_id, UserId(user_id as u64)).await?;
+        bot.delete_message(msg.chat.id, msg.id).await?;
+        bot.send_message(msg.chat.id, "Usuario Desbaneado").await?;
+        bot.send_video(chat_id, InputFile::file("./assets/unban/1.mp4")).await?;
+    } else {
+        bot.send_message(msg.chat.id, "No tienes permisos para remover el ban a un usuario").await?;
+    }
+    Ok(())
+}
+pub async fn mute_user_admin(bot: MyBot, msg: Message) -> ResponseResult<()> {
+    let user = msg.reply_to_message().unwrap().from().unwrap();
+    let chat_id = msg.chat.id;
+    let username_user = user.username.clone().unwrap_or_default();
+    let chat_member = bot.get_chat_member(chat_id, msg.from().unwrap().id).await?;
+    let is_admin_or_owner = chat_member.status().is_administrator() || chat_member.status().is_owner();
+    if is_admin_or_owner {
+        bot.delete_message(chat_id, msg.id).await?;
+        bot.restrict_chat_member(chat_id, user.id, ChatPermissions::empty()).await?;
+        bot.send_message(chat_id, format!("@{} ha sido silenciado", username_user)).await?;
+        let mut rng: StdRng = SeedableRng::from_entropy();
+        let file_names = [
+            "1.gif", "2.gif", "3.gif", "4.gif", "5.jpg",
+        ];
+        let random_number = rng.gen_range(0..=file_names.len() - 1);
+        let file_path = format!("./assets/mute/{}", file_names[random_number]);
+        let file_extension = file_path.split(".").last().unwrap_or("");
+        match file_extension {
+            "gif" => bot.send_animation(chat_id, InputFile::file(file_path)).await?,
+            "jpg" => bot.send_photo(chat_id, InputFile::file(file_path)).await?,
+            _ => bot.send_message(chat_id, "No se pudo enviar el archivo").await?,
+        };
+    } else {
+        bot.delete_message(chat_id, msg.id).await?;
+        bot.send_message(chat_id, "No tienes permisos para silenciar a un usuario").await?;
+    };
+    Ok(())
+}
+pub async fn mute_id(bot: MyBot, msg: Message) -> ResponseResult<()> {
+    let text = &msg.text().unwrap();
+    let (_, arguments) = text.split_at(text.find(' ').unwrap_or(text.len()));
+    let user_id = arguments.trim().parse::<i64>().unwrap();
+    let chat_id = msg.chat.id;
+    let chat_member = bot.get_chat_member(chat_id, msg.from().unwrap().id).await?;
+    let is_admin_or_owner = chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner;
+    if is_admin_or_owner {
+        bot.restrict_chat_member(chat_id, UserId(user_id as u64), ChatPermissions::empty()).await?;
+        bot.delete_message(msg.chat.id, msg.id).await?;
+        bot.send_message(msg.chat.id, "Usuario Silenciado").await?;
         let mut rng: StdRng = SeedableRng::from_entropy();
         let random_number = rng.gen_range(0..=6);
-        println!("random_number : {:?}", random_number);
-
-        match random_number {
-            0 => bot.send_animation(msg.chat.id, InputFile::file("./assets/mute/1.gif")).await?,
-            1 => bot.send_animation(msg.chat.id, InputFile::file("./assets/mute/2.gif")).await?,
-            2 => bot.send_animation(msg.chat.id, InputFile::file("./assets/mute/3.gif")).await?,
-            3 => bot.send_animation(msg.chat.id, InputFile::file("./assets/mute/4.gif")).await?,
-            _ => bot.send_photo(msg.chat.id, InputFile::file("./assets/mute/5.jpg")).await?,
+        let file_names = [
+            "1.gif", "2.gif", "3.gif", "4.gif", "5.jpg",
+        ];
+        let get_file_name = |index: usize| -> &'static str {
+            file_names.get(index).unwrap_or_else(|| file_names.last().unwrap())
         };
+        let file_path = format!("./assets/mute/{}", get_file_name(random_number));
+        if file_path.ends_with(".gif") {
+            bot.send_animation(chat_id, InputFile::file(file_path)).await?;
 
+        } else {
+            bot.send_photo(chat_id, InputFile::file(file_path)).await?;
+        }
     } else {
-        bot.delete_message(msg.chat.id, msg.id).await?;
         bot.send_message(msg.chat.id, "No tienes permisos para silenciar a un usuario").await?;
     }
-
     Ok(())
 }
-
-// des silenciar a un usuario por tiempo indeterminado
-pub async fn unmute_user(bot: comandos::MyBot, msg: Message) -> ResponseResult<()> {
-
+pub async fn unmute_user(bot: MyBot, msg: Message) -> ResponseResult<()> {
     let user = msg.reply_to_message().unwrap().from().unwrap();
-    println!("Info : {:?}", user);
-
     let username_user = user.clone().username;
-    println!("@username : {:?}", username_user);
-
     let chat_member = bot.get_chat_member(msg.chat.id, msg.from().unwrap().id).await?;
-
-    if chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner || chat_member.status() == ChatMemberStatus::Administrator {
+    let is_admin_or_owner = chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner;
+    if is_admin_or_owner {
         bot.delete_message(msg.chat.id, msg.id).await?;
         bot.restrict_chat_member(msg.chat.id, user.id, ChatPermissions::all()).await?;
         bot.send_message(msg.chat.id, format!("@{} ya no está silenciado", username_user.unwrap())).await?;
-        println!("Silencio Removido : {}", user.first_name);
         bot.send_video(msg.chat.id, InputFile::file("./assets/unmute/unmute.mp4")).await?;
-
     } else {
         bot.delete_message(msg.chat.id, msg.id).await?;
         bot.send_message(msg.chat.id, "No tienes permisos para remover el silencio a un usuario").await?;
     }
-
-    return Ok(());
-
+    Ok(())
 }
-
-pub async fn get_chat_member(bot: comandos::MyBot, msg: Message) -> ResponseResult<()> {
-    let chat_member = bot.get_chat_member(msg.chat.id, msg.from().unwrap().id).await?;
-    println!("Info : {:?}", chat_member);
-    bot.send_message(msg.chat.id, format!("Chat Member: {:#?}", chat_member)).await?;
-    bot.delete_message(msg.chat.id, msg.id).await?;
-
+pub async fn unmute_id(bot: MyBot, msg: Message) -> ResponseResult<()> {
+    let text = &msg.text().unwrap();
+    let (_, arguments) = text.split_at(text.find(' ').unwrap_or(text.len()));
+    let user_id = arguments.trim().parse::<i64>().unwrap();
+    let chat_id = msg.chat.id;
+    let chat_member = bot.get_chat_member(chat_id, msg.from().unwrap().id).await?;
+    let is_admin_or_owner = chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner;
+    if is_admin_or_owner {
+        bot.restrict_chat_member(chat_id, UserId(user_id as u64), ChatPermissions::all()).await?;
+        bot.delete_message(msg.chat.id, msg.id).await?;
+        bot.send_message(msg.chat.id, "El Usuario ya no esta silenciado").await?;
+        bot.send_video(msg.chat.id, InputFile::file("./assets/unmute/unmute.mp4")).await?;
+    } else {
+        bot.send_message(msg.chat.id, "No tienes permisos para remover el silencio a un usuario").await?;
+    }
+    Ok(())
+}
+pub async fn get_chat_member(bot: MyBot, msg: Message) -> ResponseResult<()> {
+    let usuario = msg.reply_to_message().unwrap().from().unwrap();
+    let user_id = usuario.id;
+    bot.send_message(msg.chat.id, format!("{user_id}")).await?;
     Ok(())
 }

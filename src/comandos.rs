@@ -1,3 +1,4 @@
+
 use crate::{admin, fun, funciones};
 
 pub use teloxide_core::types::ParseMode::MarkdownV2;
@@ -6,15 +7,6 @@ pub type MyBot = DefaultParseMode<Bot>;
 use teloxide::{prelude::*, utils::command::BotCommands};
 use teloxide::adaptors::DefaultParseMode;
 
-// Derive BotCommands para analizar texto con un comando en esta enumeración.
-//
-// 1. `rename_rule = "lowercase"` convierte todos los comandos en letras minúsculas.
-// 2. `description = "..."` especifica un texto antes de todos los comandos.
-//
-// Es decir, puede simplemente llamar a Command::descriptions() para obtener una descripción de
-// sus comandos en este formato:
-// %GENERAL-DESCRIPTION% /// %DESCRIPCIÓN GENERAL%
-// %PREFIX%%COMMAND% - %DESCRIPTION% /// %PREFIJO%%COMANDO% - %DESCRIPCIÓN%
 #[derive(BotCommands, Clone)]
 #[command(
 rename_rule = "lowercase",
@@ -22,7 +14,6 @@ description = "Hola, soy un Bot que administra grupos de Telegram y seré tu asi
 parse_with = "split"
 )]
 
-// Los comandos disponibles.
 pub enum Command {
     #[command(description = "Banea a un usuario del chat\\. \n\nUso: /ban respondiendo un mensaje de un usuario\\. \n\n")]
     Ban,
@@ -108,20 +99,27 @@ pub enum Command {
     Meme,
     #[command(description = "Envía este mensaje\\. \n")]
     Help,
-    #[command(description = "Acerca de este Bot\\. \n")]
+
     About,
+
     #[command(description = "Comando para ver las novedades de la ultima versión del Bot\\. \n")]
     Novedades,
-    #[command(description = "Comando para ver las novedades de la ultima versión del Bot\\. \n")]
+
     Get,
-    #[command(description = "Comando para ver las novedades de la ultima versión del Bot\\. \n")]
-    Admin,
-    #[command(description = "Comando para ver las novedades de la ultima versión del Bot\\. \n")]
-    User,
+
+    #[command(description = "Misma función que el Comando /ban\\. \n\n*Uso:* /banid 1234567890 \\(Reemplazar 1234567890 por el id del usuario a banear\\.\\) \n")]
+    Banid,
+    #[command(description = "Misma función que el Comando /unban\\. \n\n*Uso:* /unbanid 1234567890 \\(Reemplazar 1234567890 por el id del usuario a remover ban\\.\\) \n")]
+    Unbanid,
+    #[command(description = "Misma función que el Comando /mute\\. \n\n*Uso:* /muteid 1234567890 \\(Reemplazar 1234567890 por el id del usuario a silenciar\\.\\) \n")]
+    Muteid,
+    #[command(description = "Misma función que el Comando /unmute\\. \n\n*Uso:* /unmuteid 1234567890 \\(Reemplazar 1234567890 por el id del usuario a remover silencio\\.\\) \n")]
+    Unmuteid,
 }
 
 // Función de acción para cada comando.
 pub async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()> {
+
     match cmd {
 
         Command::Help => {
@@ -138,7 +136,11 @@ pub async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()
         Command::Ban => admin::ban_user(bot, msg).await?,
         Command::Unban => admin::unban_user(bot, msg).await?,
         Command::Mute => admin::mute_user_admin(bot, msg).await?,
-        Command::Unmute => admin::unmute_user(bot, msg).await?,
+        Command::Unmute => admin::unmute_user(bot, msg.clone()).await?,
+        Command::Banid => admin::ban_id(bot, msg).await?,
+        Command::Unbanid => admin::unban_id(bot, msg).await?,
+        Command::Muteid => admin::mute_id(bot, msg).await?,
+        Command::Unmuteid => admin::unmute_id(bot, msg).await?,
 
         // Comandos de Información
         Command::Variables =>  funciones::variables(bot, msg).await?,
@@ -176,11 +178,10 @@ pub async fn action(bot: MyBot, msg: Message, cmd: Command) -> ResponseResult<()
         Command::Scopes => funciones::scopes(bot, msg).await?,
         Command::Async => funciones::asyncs(bot, msg).await?,
         Command::Get => admin::get_chat_member(bot, msg).await?,
-        Command::Admin => funciones::get_chat_administrators(bot, msg).await?,
-        Command::User => funciones::get_username(bot, msg).await?,
+
 
         // Comandos de Diversión
-        Command::Pat => fun::send_pat(bot, msg).await?, //
+        Command::Pat => fun::send_pat(bot, msg).await?,
         Command::Meme => fun::send_random_meme(bot, msg).await?,
 
         // Comandos de Acerca del Bot y Novedades
