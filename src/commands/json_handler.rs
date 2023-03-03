@@ -126,12 +126,6 @@ pub async fn save_data_to_database(bot : Bot, msg: Message) -> ResponseResult<()
     Ok(())
 }
 
-pub async fn get_all_users() -> Result<Vec<UserData>, io::Error> {
-    let contents = fs::read_to_string("database.json")?;
-    let user_data_vec: Vec<UserData> = serde_json::from_str(&contents)?;
-    Ok(user_data_vec)
-}
-
 pub async fn get_user_id_by_username(bot: Bot, msg: Message) -> ResponseResult<()> {
     let text = if let Some(text) = msg.text() {
         text

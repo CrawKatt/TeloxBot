@@ -13,7 +13,6 @@ pub async fn anti_spam(bot: Bot, msg: Message) -> ResponseResult<()> {
         let is_admin_or_owner = chat_member.status() == ChatMemberStatus::Administrator || chat_member.status() == ChatMemberStatus::Owner;
 
         if is_admin_or_owner {
-            println!("El usuario es administrador");
             return Ok(())
         } else {
             bot.delete_message(msg.chat.id, msg.id).await?;

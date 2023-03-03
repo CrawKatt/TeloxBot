@@ -6,14 +6,12 @@ pub async fn mute_user_admin(bot: Bot, msg: Message) -> ResponseResult<()> {
             let user = if let Some(from) = replied.from() {
                 from
             } else {
-                // Send an error message and delete it after 5 seconds.
                 let error_msg = bot.send_message(msg.chat.id, "❌ No se pudo obtener el usuario")
                     .reply_to_message_id
                     (msg.id)
                     .await?;
 
                 let error_msg_id = error_msg.id;
-
                 sleep(Duration::from_secs(5)).await;
                 bot.delete_message(msg.chat.id, error_msg_id).await?;
                 bot.delete_message(msg.chat.id, msg.id).await?;
@@ -22,7 +20,6 @@ pub async fn mute_user_admin(bot: Bot, msg: Message) -> ResponseResult<()> {
             };
 
             if let Some(from) = msg.from() {
-
                 let username_user = match user.clone().username {
                     Some(username) => username,
                     None => String::new(),
@@ -30,7 +27,6 @@ pub async fn mute_user_admin(bot: Bot, msg: Message) -> ResponseResult<()> {
 
                 let chat_member = bot.get_chat_member(msg.chat.id, from.id).await?;
                 let is_admin_or_owner = chat_member.status().is_administrator() || chat_member.status().is_owner();
-
                 if is_admin_or_owner {
 
                     let chat_member = bot.get_chat_member(msg.chat.id, user.id).await?;

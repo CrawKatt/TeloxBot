@@ -1,6 +1,6 @@
 // Imports de archivos del bot
 // Imports of bot files
-pub mod testing;
+pub mod json_handler;
 pub mod handler;
 pub mod funciones;
 pub mod admin_commands;
